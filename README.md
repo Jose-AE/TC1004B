@@ -1,4 +1,3 @@
 TC1004B
 
-
-IOT
+Implementation of the Internet of Things
