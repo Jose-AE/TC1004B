@@ -16,36 +16,36 @@ CREATE TABLE member(
 );
 --
 CREATE TABLE director(
-    directorNo integer primary key auto_increment,
-    directorName varchar(100) not NULL
+directorNo integer primary key auto_increment,
+directorName varchar(100) not NULL
 );
 --
 CREATE TABLE video(
-    catalogNo integer primary key auto_increment,
-    title varchar(100) NOT NULL,
-    `certificate` varchar(100) NOT NULL,
-    category varchar(100) NOT NULL,
-    dailyRental BOOLEAN NOT NULL,
-    price float NOT NULL,
-    directorNo integer not NULL,
-    foreign key (directorNo) references director(directorNo)
+catalogNo integer primary key auto_increment,
+title varchar(100) NOT NULL,
+`certificate` varchar(100) NOT NULL,
+category varchar(100) NOT NULL,
+dailyRental BOOLEAN NOT NULL,
+price float NOT NULL,
+directorNo integer not NULL,
+foreign key (directorNo) references director(directorNo)
 );
 --
 CREATE TABLE video_for_rent(
-    videoNo integer primary key auto_increment,
-    available BOOLEAN NOT NULL,
-    catalogNo integer NOT NULL,
-    foreign key (catalogNo) references `catalog`(catalogNo)
+videoNo integer primary key auto_increment,
+available BOOLEAN NOT NULL,
+catalogNo integer NOT NULL,
+foreign key (catalogNo) references video(catalogNo)
 );
 --
 CREATE TABLE rental_agreement(
-    rentalNo integer primary key auto_increment,
-    memberNo integer NOT NULL,
-    videoNo integer NOT NULL,
-    dateOut date NOT NULL,
-    dateReturn date not NULL,
-    foreign key (videoNo) references video_for_rent(videoNo),
-    foreign key (memberNo) references member(memberNo)
+rentalNo integer primary key auto_increment,
+memberNo integer NOT NULL,
+videoNo integer NOT NULL,
+dateOut date NOT NULL,
+dateReturn date not NULL,
+foreign key (videoNo) references video_for_rent(videoNo),
+foreign key (memberNo) references member(memberNo)
 );
 --Show tables
 DESCRIBE video;
@@ -56,14 +56,13 @@ DESCRIBE member;
 DESCRIBE video;
 --
 INSERT INTO member (
-        memberNo,
-        fname,
-        lName,
-        sex,
-        DOB,
-        adress,
-        dateJoined
-    )
+fname,
+lName,
+sex,
+DOB,
+adress,
+dateJoined
+)
 VALUES (
         'John',
         'Doe',
@@ -147,7 +146,7 @@ VALUES (
 --
 DESCRIBE table member;
 SELECT *
-FROM video;
+FROM member;
 --
 INSERT INTO director (directorName)
 VALUES ('Christopher Nolan'),
@@ -291,33 +290,33 @@ VALUES (TRUE, 3),
     (TRUE, 2),
     (TRUE, 4),
     (FALSE, 3) --
-    --
+--
     DESCRIBE table video_for_rent;
 SELECT *
 FROM video_for_rent;
 --
 --
 INSERT INTO rental_agreement (memberNo, videoNo, dateOut, dateReturn)
-VALUES (7, 21, '2023-08-23', '2023-08-26'),
-    (3, 23, '2023-09-05', '2023-09-12'),
-    (9, 34, '2023-08-28', '2023-09-02'),
-    (1, 45, '2023-09-01', '2023-09-07'),
-    (2, 50, '2023-09-15', '2023-09-17'),
+VALUES (7, 1, '2023-08-23', '2023-08-26'),
+    (3, 3, '2023-09-05', '2023-09-12'),
+    (9, 4, '2023-08-28', '2023-09-02'),
+    (1, 5, '2023-09-01', '2023-09-07'),
+    (2, 6, '2023-09-15', '2023-09-17'),
     (8, 26, '2023-08-30', '2023-09-03'),
     (6, 27, '2023-09-04', '2023-09-06'),
-    (4, 38, '2023-08-29', '2023-09-01'),
-    (5, 49, '2023-09-10', '2023-09-15'),
+    (4, 8, '2023-08-29', '2023-09-01'),
+    (5, 9, '2023-09-10', '2023-09-15'),
     (10, 22, '2023-09-02', '2023-09-05'),
-    (4, 34, '2023-08-21', '2023-08-24'),
-    (7, 47, '2023-09-06', '2023-09-11'),
-    (2, 41, '2023-08-29', '2023-09-04'),
-    (9, 32, '2023-09-03', '2023-09-08'),
-    (5, 42, '2023-09-14', '2023-09-19'),
-    (1, 38, '2023-08-31', '2023-09-03'),
-    (3, 48, '2023-09-07', '2023-09-10'),
-    (6, 36, '2023-08-28', '2023-08-30'),
+    (4, 3, '2023-08-21', '2023-08-24'),
+    (7, 7, '2023-09-06', '2023-09-11'),
+    (2, 4, '2023-08-29', '2023-09-04'),
+    (9, 30, '2023-09-03', '2023-09-08'),
+    (5, 4, '2023-09-14', '2023-09-19'),
+    (1, 29, '2023-08-31', '2023-09-03'),
+    (3, 18, '2023-09-07', '2023-09-10'),
+    (6, 26, '2023-08-28', '2023-08-30'),
     (8, 23, '2023-09-09', '2023-09-14'),
-    (10, 35, '2023-09-05', '2023-09-09');
+    (10, 15, '2023-09-05', '2023-09-09');
 --
 select *
 from video;
@@ -332,3 +331,47 @@ SELECT Count(*) as cardinality
 FROM video;
 --2.Hacer una consulta que regrese el nombre de los clientes (member) 
 --ordenados por fName y lname.
+SELECT fname,
+    lname
+FROM member
+ORDER BY fname,
+    lname;
+--3.Hacer una consulta que regrese el título del video 
+--y su correspondiente director.
+SELECT video.title,
+    director.directorName
+FROM video
+    JOIN director ON video.directorNo = director.directorNo;
+--4.Hacer una consulta que regrese cuanto tiene la StayHome invertido en videos. 
+--(si hay 3 copias  y el precio del video es 5, la inversión es 15) 
+--5.Hacer una consulta que regrese el título de video 
+--y la cantidad de copias. 
+SELECT video.title,
+    COUNT(video_for_rent.videoNo) AS copy_count
+FROM video
+    JOIN video_for_rent ON video.catalogNo = video_for_rent.catalogNo
+GROUP BY video.title;
+--6.Hacer una consulta que regrese la cantidad de títulos 
+--por categoría ordenado por categoría. 
+SELECT category,
+    COUNT(title) AS title_count
+FROM video
+GROUP BY category
+ORDER BY category;
+--7.Hacer una consulta que regrese los títulos de las películas 
+--cuya renta diaria sea la más cara 
+SELECT title
+FROM video
+WHERE price = (
+        SELECT MAX(price)
+        FROM video
+    );
+--8.Hacer una consulta que regrese los títulos de las películas 
+--y lo obtenido por concepto de renta. 
+SELECT video.title,
+    COUNT(rental_agreement.rentalNo) * ANY_VALUE(video.price) AS total_rent_income
+FROM video
+    JOIN video_for_rent ON video.catalogNo = video_for_rent.catalogNo
+    JOIN rental_agreement ON video_for_rent.videoNo = rental_agreement.videoNo
+GROUP BY video.title
+ORDER BY total_rent_income DESC;

@@ -10,7 +10,7 @@
             "port": 3306,
             "driver": "MySQL",
             "name": "Test",
-            "database": "a_2",
+            "database": "T2_6",
             "username": "root"
         }
     ]
