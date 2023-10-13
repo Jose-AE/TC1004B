@@ -3,15 +3,14 @@ CREATE DATABASE T2_6;
 USE T2_6;
 show tables;
 --
---
 CREATE TABLE member(
-    memberNo integer primary key auto_increment,
-    fname varchar(100) NOT NULL,
-    lName varchar(100) NOT NULL,
-    sex BOOLEAN NOT NULL,
-    DOB date NOT NULL,
-    adress varchar(100) NOT NULL,
-    dateJoined date NOT NULL
+memberNo integer primary key auto_increment,
+fname varchar(100) NOT NULL,
+lName varchar(100) NOT NULL,
+sex BOOLEAN NOT NULL,
+DOB date NOT NULL,
+adress varchar(100) NOT NULL,
+dateJoined date NOT NULL
 );
 --
 CREATE TABLE director(
