@@ -1,10 +1,15 @@
-import { Center } from "@chakra-ui/react";
+import { Center, Heading } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import io, { Socket } from "socket.io-client";
 
 function App() {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [pressedKey, setPressedKey] = useState<String | null>(null);
+
+  const [distance, setDistance] = useState(0)
+  const [pressure, setPressure] = useState(0)
+  const [temperature, setTemperature] = useState(0)
+
 
   function handleKeyDown(e: KeyboardEvent) {
     if (e.key.startsWith("Arrow")) {
@@ -33,6 +38,15 @@ function App() {
       console.log("Connected to Flask-SocketIO server");
     });
 
+
+    // Connect to the Socket.IO server
+    socket.on("sensors_updated", (data) => {
+      setDistance(data.distance);
+      setTemperature(data.temperature);
+      setPressure(data.pressure);
+      //console.log(data);
+    });
+
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
@@ -44,6 +58,10 @@ function App() {
   return (
     <>
       <Center>{pressedKey ? pressedKey : "None"}</Center>
+      <Heading>Temp: {temperature}</Heading>
+      <Heading>Press: {pressure}</Heading>
+      <Heading>Dist: {distance}</Heading>
+
     </>
   );
 }
