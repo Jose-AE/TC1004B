@@ -1,49 +1,39 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, jsonify, request
 from flask_socketio import SocketIO, emit
 
 
 app = Flask(__name__)
+app.debug = True
+app.config["SECRET_KEY"] = "secret!"
+socketio = SocketIO(app, cors_allowed_origins="*", )
 
 
-socketio = SocketIO(app, cors_allowed_origins="*")
 
-
-values = {
-    "slider1": 25,
-    "slider2": 0,
-}
-
-
+#root route 
 @app.route("/", methods=["GET"])
 def ReturnJSON():
     if request.method == "GET":
         data = {
-            "Modules": 15,
-            "Subject": "Data Structures and Algorithms",
+            "IOT CAR API VERSION ": 1,
         }
-
         return jsonify(data)
-
-
-@socketio.on("connect")
-def test_connect():
-    emit("after connect", {"data": "Lets dance"})
-
-
-@socketio.on("custom_event_name")
-def handle_custom_event(data):
-    mess = data.get("message", "no direction received")
-    print(f"Direction: {mess}")
 
 
 @socketio.on("direction_event")
 def handle_direction_event(data):
-    dir = data.get("direction", "No message received")
-    print(f"Received message from React: {dir}")
+    dir = data.get("direction", "No direction received")
+    print(f"Moving motors: {dir}")
 
-    # You can send a response back to the React app if needed
-    response = {"response_message": "Message received on the server"}
-    emit("custom_event_response", response)
+
+@socketio.on("connect")
+def test_connect():
+    print("Client Connected")
+
+
+@socketio.on("disconnect")
+def test_disconnect():
+    print("Client disconnected")
+
 
 
 if __name__ == "__main__":
