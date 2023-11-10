@@ -1,14 +1,12 @@
-
+import motor_module 
 import time
-from bmp280 import BMP280
-from smbus2 import SMBus
 
-# Initialise the BMP280
-bus = SMBus(1)
-bmp280 = BMP280(i2c_dev=bus)
 
-while True:
-    temperature = bmp280.get_temperature()
-    pressure = bmp280.get_pressure()
-    print(f'{temperature}*C {pressure}hPa')
-    time.sleep(1)
+
+motor_module.setup()  # Call the setup function first
+
+# Now you can use the movement functions
+motor_module.forward()
+time.sleep(2)  # Sleep for 2 seconds (or however long you want the motors to run)
+motor_module.stop()  # Stop the motors
+

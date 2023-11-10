@@ -4,14 +4,13 @@ from time import sleep
 GPIO.setwarnings(False)
 
 # Right Motor
-en_a = 4 #7 BOARD
-in1 = 17 #11 BOARD
-in2 = 27 #13 BOARD
-
+in1 = 17
+in2 = 27
+en_a = 4
 # Left Motor
-in3 = 5 #29 BOARD
-in4 = 6 #31 BOARD
-en_b = 13 #33 BOARD
+in3 = 5
+in4 = 6
+en_b = 13
 
 
 GPIO.setmode(GPIO.BCM)

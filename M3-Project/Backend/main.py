@@ -7,7 +7,7 @@ import hcsr04_module
 import motor_module 
 
 app = Flask(__name__)
-app.debug = True
+app.debug = False
 app.config["SECRET_KEY"] = "secret!"
 socketio = SocketIO(app, cors_allowed_origins="*", )
 
@@ -22,8 +22,8 @@ hcsr04_module.setup()
 def read_sensors():
     while True:
         time.sleep(1)
-        socketio.emit('sensors_updated', {"temperature": bmp280_module.get_pressure(), 
-                                            "pressure" : bmp280_module.get_temperature(),
+        socketio.emit('sensors_updated', {"temperature": bmp280_module.get_temperature(), 
+                                            "pressure" : bmp280_module.get_pressure(),
                                             "distance" : hcsr04_module.get_distance()})
 
 
@@ -75,4 +75,9 @@ if __name__ == "__main__":
     thread.start()
 
     # Run the Flask application 
-    socketio.run(app)
+    socketio.run(app, host='0.0.0.0', allow_unsafe_werkzeug=True)
+
+
+
+
+
