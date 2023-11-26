@@ -1,92 +1,150 @@
-import { Flex } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-import io, { Socket } from "socket.io-client";
-import SensorData from "./components/SensorData";
-import Controller from "./components/Controller";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { LineChart } from "@mui/x-charts/LineChart";
+import React, { useEffect } from "react";
+import axios from "axios";
 
-const LOCAL_MODE = false;
-const RASPI_IP = "192.168.68.110";
+const APU_URI = "https://agile-polymer-405915.uc.r.appspot.com";
+const GRAPH_RANGE = 10;
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#030187",
+    },
+    secondary: {
+      main: "#B021F3",
+    },
+  },
+});
+
+interface ISensorData {
+  id: number;
+  value: number;
+  date: string;
+}
 
 function App() {
-  const [socket, setSocket] = useState<Socket | null>(null);
-  const [pressedKey, setPressedKey] = useState<String | null>(null);
-
-  const [distance, setDistance] = useState(0);
-  const [pressure, setPressure] = useState(0);
-  const [temperature, setTemperature] = useState(0);
-
-  function handleKeyDown(e: KeyboardEvent) {
-    if (e.key.startsWith("Arrow")) {
-      const key = e.key.replace("Arrow", "");
-      setPressedKey(key);
-    }
-  }
-
-  function handleKeyUp(e: KeyboardEvent) {
-    if (e.key.startsWith("Arrow")) {
-      setPressedKey(null);
-    }
-  }
-
-  socket?.emit("direction_event", { direction: pressedKey });
+  const [tempData, setTempData] = React.useState<ISensorData[]>([]);
+  const [pressData, setPressData] = React.useState<ISensorData[]>([]);
+  const [distanceData, setDistanceData] = React.useState<ISensorData[]>([]);
+  const [accData, setAccData] = React.useState<ISensorData[]>([]);
 
   useEffect(() => {
-    const socket = io(
-      LOCAL_MODE ? "http://0.0.0.0:5000" : `http://${RASPI_IP}:5000/`
-    );
-    setSocket(socket);
-
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
-
-    // Connect to the Socket.IO server
-    socket.on("connect", () => {
-      console.log("Connected to Flask-SocketIO server");
+    axios.get(`${APU_URI}/BMP280`).then((response) => {
+      setTempData(response.data.temp);
+      setPressData(response.data.press);
     });
 
-    // Connect to the Socket.IO server
-    socket.on("sensors_updated", (data) => {
-      setDistance(data.distance);
-      setTemperature(data.temperature);
-      setPressure(data.pressure);
-      //console.log(data);
+    axios.get(`${APU_URI}/HC_SR04`).then((response) => {
+      setDistanceData(response.data);
     });
 
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
-      // Disconnect from the Socket.IO server when the component unmounts
-      socket.disconnect();
-    };
+    axios.get(`${APU_URI}/GY_61`).then((response) => {
+      setAccData(response.data);
+    });
   }, []);
 
   return (
-    <>
-      <Flex h={"100vh"} bg={"gray.100"} direction={"column"}>
-        <Flex h={"175px"} w={"100%"}>
-          <SensorData
-            distance={distance}
-            pressure={pressure}
-            temperature={temperature}
-            xac={0}
-            yac={0}
-            zac={0}
-          />
-        </Flex>
-        <Flex>
-          <Flex w={"50%"}>*</Flex>
-          <Flex p={10} w={"50%"}>
-            <Controller pressedKey={pressedKey} setPressedKey={setPressedKey} />
-          </Flex>
-        </Flex>
-      </Flex>
-    </>
+    <ThemeProvider theme={theme}>
+      <div className="App">
+        {
+          <>
+            {tempData.length > 0 ? (
+              <LineChart
+                xAxis={[
+                  {
+                    data: tempData.slice(-GRAPH_RANGE).map((v, i) => {
+                      return i;
+                    }),
+                    label: "Tiempo",
+                  },
+                ]}
+                series={[
+                  {
+                    data: tempData.slice(-GRAPH_RANGE).map((v) => v.value),
+                    label: "tempData",
+                  },
+                ]}
+                width={500}
+                height={300}
+              />
+            ) : (
+              "No tempData"
+            )}
+
+            {pressData.length > 0 ? (
+              <LineChart
+                xAxis={[
+                  {
+                    data: pressData.slice(-GRAPH_RANGE).map((v, i) => {
+                      return i;
+                    }),
+                    label: "Tiempo",
+                  },
+                ]}
+                series={[
+                  {
+                    data: pressData.slice(-GRAPH_RANGE).map((v) => v.value),
+                    label: "pressData",
+                  },
+                ]}
+                width={500}
+                height={300}
+              />
+            ) : (
+              "No pressData"
+            )}
+
+            {distanceData.length > 0 ? (
+              <LineChart
+                xAxis={[
+                  {
+                    data: distanceData.slice(-GRAPH_RANGE).map((v, i) => {
+                      return i;
+                    }),
+                    label: "Tiempo",
+                  },
+                ]}
+                series={[
+                  {
+                    data: distanceData.slice(-GRAPH_RANGE).map((v) => v.value),
+                    label: "distanceData",
+                  },
+                ]}
+                width={500}
+                height={300}
+              />
+            ) : (
+              "No distanceData"
+            )}
+
+            {accData.length > 0 ? (
+              <LineChart
+                xAxis={[
+                  {
+                    data: accData.slice(-GRAPH_RANGE).map((v, i) => {
+                      return i;
+                    }),
+                    label: "Tiempo",
+                  },
+                ]}
+                series={[
+                  {
+                    data: accData.slice(-GRAPH_RANGE).map((v) => v.value),
+                    label: "accData",
+                  },
+                ]}
+                width={500}
+                height={300}
+              />
+            ) : (
+              "No accData"
+            )}
+          </>
+        }
+      </div>
+    </ThemeProvider>
   );
 }
 
 export default App;
-
-//
-//       <Heading>Temp: {Math.round(temperature)}</Heading>
-//       <Heading>Press: {Math.round(pressure)}</Heading>
-//       <Heading>Dist: {Math.round(distance)}</Heading>
