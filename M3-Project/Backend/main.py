@@ -1,83 +1,93 @@
-from flask import Flask, jsonify, request
-from threading import Thread
-from flask_socketio import SocketIO, emit
-import bmp280_module 
-import time
-import hcsr04_module
-import motor_module 
+from fastapi import FastAPI
+import mysql.connector
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
-app = Flask(__name__)
-app.debug = False
-app.config["SECRET_KEY"] = "secret!"
-socketio = SocketIO(app, cors_allowed_origins="*", )
-
-
-##setup modules
-motor_module.setup()
-hcsr04_module.setup()
+db_config = {
+    "host": "34.30.5.223",
+    "user": "root",
+    "password": "PASSWORD",
+    "database": "Equipo9",
+}
 
 
+app = FastAPI()
+
+origins = [
+    "*",
+]
 
 
-def read_sensors():
-    while True:
-        time.sleep(1)
-        socketio.emit('sensors_updated', {"temperature": bmp280_module.get_temperature(), 
-                                            "pressure" : bmp280_module.get_pressure(),
-                                            "distance" : hcsr04_module.get_distance()})
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
-#root route 
-@app.route("/", methods=["GET"])
-def ReturnJSON():
-    if request.method == "GET":
-        data = {
-            "IOT CAR API VERSION ": 1,
-        }
-        return jsonify(data)
+try:
+    mydb = mysql.connector.connect(**db_config)
+except:
+    print("Error connecting to db")
 
 
-@socketio.on("direction_event")
-def handle_direction_event(data):
-    dir = data.get("direction", "No direction received")
-    print(f"Moving motors: {dir}")
-
-    if dir == "Up":
-        motor_module.forward()
-    elif dir == "Down":
-        motor_module.backward()
-    elif dir == "Left":
-        motor_module.left()
-    elif dir == "Right":
-        motor_module.right()
-    else:
-        motor_module.stop()
+@app.get("/")
+async def root():
+    return "CAR-9 API"
 
 
+@app.get("/BMP280")
+async def root():
+    try:
+        mycursor = mydb.cursor()
+        mycursor.execute("SELECT * FROM BMP280")
+        rows = mycursor.fetchall()  #
+
+        response = {"temp": [], "press": []}
+
+        for row in rows:
+            response["press"].append({"id": row[0], "value": row[1], "date": row[3]})
+            response["temp"].append({"id": row[0], "value": row[2], "date": row[3]})
+
+        return response
+
+    except:
+        return JSONResponse(content="Error getting data from DB", status_code=500)
 
 
+@app.get("/HC_SR04")
+async def root():
+    try:
+        mycursor = mydb.cursor()
+        mycursor.execute("SELECT * FROM HC_SR04")
+        rows = mycursor.fetchall()
 
-@socketio.on("connect")
-def test_connect():
-    print("Client Connected")
+        response = []
 
+        for row in rows:
+            response.append({"id": row[0], "value": row[1], "date": row[2]})
 
-@socketio.on("disconnect")
-def test_disconnect():
-    print("Client disconnected")
+        return response
 
-
-
-if __name__ == "__main__":
-    # Start the sensors task in a separate thread
-    thread = Thread(target=read_sensors)
-    thread.daemon = True
-    thread.start()
-
-    # Run the Flask application 
-    socketio.run(app, host='0.0.0.0', allow_unsafe_werkzeug=True)
+    except:
+        return JSONResponse(content="Error getting data from DB", status_code=500)
 
 
+@app.get("/GY_61")
+async def root():
+    try:
+        mycursor = mydb.cursor()
+        mycursor.execute("SELECT * FROM GY_61")
+        rows = mycursor.fetchall()
 
+        response = []
 
+        for row in rows:
+            response.append({"id": row[0], "value": row[1], "date": row[2]})
 
+        return response
+
+    except:
+        return JSONResponse(content="Error getting data from DB", status_code=500)
