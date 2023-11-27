@@ -29,7 +29,7 @@ function App() {
   const [distanceData, setDistanceData] = React.useState<ISensorData[]>([]);
   const [accData, setAccData] = React.useState<ISensorData[]>([]);
 
-  useEffect(() => {
+  function fetchData() {
     axios.get(`${APU_URI}/BMP280`).then((response) => {
       setTempData(response.data.temp);
       setPressData(response.data.press);
@@ -42,6 +42,12 @@ function App() {
     axios.get(`${APU_URI}/GY_61`).then((response) => {
       setAccData(response.data);
     });
+  }
+
+  useEffect(() => {
+    const intervalId = setInterval(fetchData, 2000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   return (
