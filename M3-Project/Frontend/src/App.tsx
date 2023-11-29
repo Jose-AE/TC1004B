@@ -59,7 +59,8 @@ function App() {
               <LineChart
                 xAxis={[
                   {
-                    data: tempData.slice(-GRAPH_RANGE).map((v, i) => {
+                    data: tempData.slice(-GRAPH_RANGE).map((_, i) => {
+                      
                       return i;
                     }),
                     label: "Tiempo",
@@ -82,7 +83,7 @@ function App() {
               <LineChart
                 xAxis={[
                   {
-                    data: pressData.slice(-GRAPH_RANGE).map((v, i) => {
+                    data: pressData.slice(-GRAPH_RANGE).map((_, i) => {
                       return i;
                     }),
                     label: "Tiempo",
@@ -105,7 +106,7 @@ function App() {
               <LineChart
                 xAxis={[
                   {
-                    data: distanceData.slice(-GRAPH_RANGE).map((v, i) => {
+                    data: distanceData.slice(-GRAPH_RANGE).map((_, i) => {
                       return i;
                     }),
                     label: "Tiempo",
@@ -128,7 +129,7 @@ function App() {
               <LineChart
                 xAxis={[
                   {
-                    data: accData.slice(-GRAPH_RANGE).map((v, i) => {
+                    data: accData.slice(-GRAPH_RANGE).map((_, i) => {
                       return i;
                     }),
                     label: "Tiempo",
