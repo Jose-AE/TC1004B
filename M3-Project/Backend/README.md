@@ -15,3 +15,7 @@ install dep into current env
 pip install -r requirements.txt
 ```
 
+Deploy app
+```bash
+gcloud app deploy
+```

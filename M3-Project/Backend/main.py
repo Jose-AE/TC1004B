@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 db_config = {
     "host": "34.30.5.223",
     "user": "root",
-    "password": "PASSWORD",
+    "password": "PASS",
     "database": "Equipo9",
 }
 
@@ -48,8 +48,9 @@ async def root():
         response = {"temp": [], "press": []}
 
         for row in rows:
-            response["press"].append({"id": row[0], "value": row[1], "date": row[3]})
-            response["temp"].append({"id": row[0], "value": row[2], "date": row[3]})
+            print(row)
+            response["temp"].append({"id": row[0], "value": row[1], "date": row[3]})
+            response["press"].append({"id": row[0], "value": row[2], "date": row[3]})
 
         return response
 
