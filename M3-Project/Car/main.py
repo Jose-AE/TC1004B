@@ -5,16 +5,29 @@ import time
 import hcsr04_module
 import motor_module
 import db_manager
+import gyro_module
+
+BROKER_ADRESS = "192.168.68.120"  # 192.168.1.127
+
+PRINT_SENSORS = False
 
 
-BROKER_ADRESS = "192.168.68.110"  # 192.168.1.127
+def manage_distance():
+    dist = hcsr04_module.get_distance()
+
+    if dist < 13:
+        motor_module.backward()
+        time.sleep(2)
+        motor_module.left()
+        time.sleep(2)
+        motor_module.stop()
 
 
 def read_sensors():
     temp = bmp280_module.get_temperature()
     press = bmp280_module.get_pressure()
     dist = hcsr04_module.get_distance()
-    axisz = 0
+    axisz = gyro_module.read_z()
 
     client.publish("iot/car9/temp", temp)
     client.publish("iot/car9/press", press)
@@ -25,6 +38,12 @@ def read_sensors():
     db_manager.insert_into_BMP280_table(temp, press)
     db_manager.insert_into_HC_SR04_table(dist)
     db_manager.insert_into_GY_61_table(axisz)
+
+    if PRINT_SENSORS:
+        print(f"Temperature: {temp} °C")
+        print(f"Pressure: {press} Pa")
+        print(f"Distance: {dist} cm")
+        print(f"Z-axis Gyro: {axisz}")
 
 
 def on_message(client, userdata, message):
@@ -71,10 +90,11 @@ if __name__ == "__main__":
 
     print("connecting to broker")
     client.connect(BROKER_ADRESS)
-    client.subscribe("iot/car9/")
+    client.subscribe("iot/car9/move")
     client.loop_start()
 
     while True:
         print(f"MQTT Running-[{time.ctime()}]")
         read_sensors()
-        time.sleep(2)
+        manage_distance()
+        time.sleep(1)
