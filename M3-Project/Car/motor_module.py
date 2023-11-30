@@ -98,11 +98,11 @@ def right():
 
 def left():
     if GPIO_IMPORTED:
-        GPIO.output(in1, GPIO.LOW)
-        GPIO.output(in2, GPIO.HIGH)
-
-        GPIO.output(in4, GPIO.LOW)
+        GPIO.output(in4, GPIO.HIGH)
         GPIO.output(in3, GPIO.LOW)
+
+        GPIO.output(in1, GPIO.LOW)
+        GPIO.output(in2, GPIO.LOW)
 
     if DEBUG_MODE:
         print("Moving motors left")
